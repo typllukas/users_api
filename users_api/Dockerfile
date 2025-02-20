@@ -2,7 +2,6 @@ FROM php:8.2-fpm
 
 # Install dependencies, including Composer and Symfony
 RUN apt-get update && apt-get install -y \
-    git \
     unzip \
     libpq-dev \
     libpng-dev \
