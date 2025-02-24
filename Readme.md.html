@@ -1,0 +1,493 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>User Management API.md</title><style></style></head><body id="preview">
+<h1 class="code-line" data-line-start=1 data-line-end=2 ><a id="Dokumentace_USERS_API_1"></a>Dokumentace USERS API</h1>
+<p class="has-line-data" data-line-start="3" data-line-end="4">Vítejte v <strong>API pro správu uživatelů</strong>. Toto API poskytuje sadu endpointů pro pro práci s funkcemi, jako je načítání informací o uživatelích, vytváření nových uživatelů a jejich úprava, mazání či výpis záznamu provedených operací.</p>
+<p class="has-line-data" data-line-start="5" data-line-end="8"><strong>Základní URL:</strong> <code>/api</code><br>
+<strong>Autentizace:</strong> JWT Bearer Token<br>
+<strong>Content-Type:</strong> <code>application/json</code></p>
+<hr>
+<h2 class="code-line" data-line-start=11 data-line-end=12 ><a id="Pehled_Endpoint_11"></a>Přehled Endpointů</h2>
+<h3 class="code-line" data-line-start=13 data-line-end=14 ><a id="Autentizace_13"></a>Autentizace</h3>
+<table class="table table-striped table-bordered">
+<thead>
+<tr>
+<th>Metoda</th>
+<th>Endpoint</th>
+<th>Popis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td><code>/login</code></td>
+<td>přihlášení a získání JWT</td>
+</tr>
+</tbody>
+</table>
+<h3 class="code-line" data-line-start=18 data-line-end=19 ><a id="Uivatel_18"></a>Uživatelé</h3>
+<table class="table table-striped table-bordered">
+<thead>
+<tr>
+<th>Metoda</th>
+<th>Endpoint</th>
+<th>Popis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/users/me</code></td>
+<td>informace o přihlášeném uživateli</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/users</code></td>
+<td>získání uživatele podle ID/emailu (<code>?id=123</code> nebo <code><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="81bee4ece0e8edbcf4f2e4f3c1e4f9e0ecf1ede4afe2eeec">[email&#160;protected]</a></code>)</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/users/list</code></td>
+<td>výpis uživatelů s volitelnými filtry</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/users</code></td>
+<td>vytvoření nového uživatele</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/users/{id}</code></td>
+<td>aktualizace uživatele podle ID</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/users/{id}</code></td>
+<td>smazání uživatele (soft/hard)</td>
+</tr>
+</tbody>
+</table>
+<h3 class="code-line" data-line-start=28 data-line-end=29 ><a id="Audit_log_28"></a>Audit log</h3>
+<table class="table table-striped table-bordered">
+<thead>
+<tr>
+<th>Metoda</th>
+<th>Endpoint</th>
+<th>Popis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/audit</code></td>
+<td>výpis logů provedených operací s volitelnými filtry</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 class="code-line" data-line-start=34 data-line-end=35 ><a id="Detailn_popis_Endpoint_34"></a>Detailní popis Endpointů</h2>
+<hr>
+<h3 class="code-line" data-line-start=36 data-line-end=37 ><a id="Pihlen_uivatele_36"></a>Přihlášení uživatele</h3>
+<p class="has-line-data" data-line-start="37" data-line-end="38">Autentizace uživatele a získání JWT tokenu pro přístup k ostatním endpointům.</p>
+<ul>
+<li class="has-line-data" data-line-start="39" data-line-end="40"><strong>URL:</strong> <code>/api/login</code></li>
+<li class="has-line-data" data-line-start="40" data-line-end="42"><strong>Metoda:</strong> <code>POST</code></li>
+</ul>
+<h4 class="code-line" data-line-start=42 data-line-end=43 ><a id="Tlo_poadavku_42"></a>Tělo požadavku</h4>
+<p class="has-line-data" data-line-start="43" data-line-end="44">Tělo požadavku musí obsahovat následující povinné klíče a hodnoty:</p>
+<pre><code class="has-line-data" data-line-start="46" data-line-end="51" class="language-json">{
+  "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a0d5dac9d6c1d4c5cce0c5d8c1cdd0ccc58ec3cfcd">[email&#160;protected]</a>"</span></span>,
+  "<span class="hljs-attribute">password</span>": <span class="hljs-value"><span class="hljs-string">"bezpecneHeslo123*"</span>
+</span>}
+</code></pre>
+<h4 class="code-line" data-line-start=52 data-line-end=53 ><a id="spn_odpov_52"></a>Úspěšná odpověď</h4>
+<pre><code class="has-line-data" data-line-start="54" data-line-end="58" class="language-json">{
+  "<span class="hljs-attribute">token</span>": <span class="hljs-value"><span class="hljs-string">"vas.jwt.token.zde"</span>
+</span>}
+</code></pre>
+<h4 class="code-line" data-line-start=59 data-line-end=60 ><a id="Chybov_odpov_59"></a>Chybová odpověď</h4>
+<pre><code class="has-line-data" data-line-start="61" data-line-end="65" class="language-json">{
+  "<span class="hljs-attribute">error</span>": <span class="hljs-value"><span class="hljs-string">"Invalid credentials."</span>
+</span>}
+</code></pre>
+<hr>
+<h3 class="code-line" data-line-start=68 data-line-end=69 ><a id="Informace_o_pihlenm_uivateli_68"></a>Informace o přihlášeném uživateli</h3>
+<p class="has-line-data" data-line-start="69" data-line-end="70">Umožňuje získat uživateli své vlastní údaje.</p>
+<ul>
+<li class="has-line-data" data-line-start="71" data-line-end="72"><strong>URL:</strong> <code>/api/users/me</code></li>
+<li class="has-line-data" data-line-start="72" data-line-end="73"><strong>Metoda:</strong> <code>GET</code></li>
+<li class="has-line-data" data-line-start="73" data-line-end="75"><strong>Požadovaná role</strong> <code>user</code></li>
+</ul>
+<h4 class="code-line" data-line-start=75 data-line-end=76 ><a id="Parametry_75"></a>Parametry</h4>
+<p class="has-line-data" data-line-start="77" data-line-end="78">Kromě JWT tokenu v hlavičce nevyžaduje tento endpoint žádné parametry.</p>
+<h4 class="code-line" data-line-start=79 data-line-end=80 ><a id="spn_odpov_79"></a>Úspěšná odpověď</h4>
+<pre><code class="has-line-data" data-line-start="81" data-line-end="94" class="language-json">{
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"success"</span></span>,
+    "<span class="hljs-attribute">data</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Test User 1"</span></span>,
+        "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3642534542434553440776534e575b465a531855595b">[email&#160;protected]</a>"</span></span>,
+        "<span class="hljs-attribute">role</span>": <span class="hljs-value"><span class="hljs-string">"user"</span></span>,
+        "<span class="hljs-attribute">created_at</span>": <span class="hljs-value"><span class="hljs-string">"2025-02-23 19:10:31"</span></span>,
+        "<span class="hljs-attribute">updated_at</span>": <span class="hljs-value"><span class="hljs-literal">null</span></span>,
+        "<span class="hljs-attribute">deleted_at</span>": <span class="hljs-value"><span class="hljs-literal">null</span>
+    </span>}
+</span>}
+</code></pre>
+<hr>
+<h3 class="code-line" data-line-start=98 data-line-end=99 ><a id="Naten_uivatele_podle_ID_nebo_emailu_98"></a>Načtení uživatele podle ID nebo e-mailu</h3>
+<p class="has-line-data" data-line-start="99" data-line-end="100">Získání detailních informací o uživateli.</p>
+<ul>
+<li class="has-line-data" data-line-start="101" data-line-end="102"><strong>URL:</strong> <code>/api/users</code></li>
+<li class="has-line-data" data-line-start="102" data-line-end="103"><strong>Metoda:</strong> <code>GET</code></li>
+<li class="has-line-data" data-line-start="103" data-line-end="105"><strong>Požadovaná role</strong> <code>admin</code></li>
+</ul>
+<h4 class="code-line" data-line-start=105 data-line-end=106 ><a id="Parametry_105"></a>Parametry</h4>
+<p class="has-line-data" data-line-start="106" data-line-end="107">Je třeba uvést <strong>jeden z</strong> následujících parametrů.</p>
+<ul>
+<li class="has-line-data" data-line-start="107" data-line-end="108"><code>id</code>  — ID uživatele</li>
+<li class="has-line-data" data-line-start="108" data-line-end="110"><code>email</code>  — E-mail uživatele</li>
+</ul>
+<h4 class="code-line" data-line-start=110 data-line-end=111 ><a id="Pklad_110"></a>Příklad</h4>
+<pre><code class="has-line-data" data-line-start="112" data-line-end="114">GET /api/<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6d181e081f1e5208000c04015019081e190c090004035c2d08150c001d0108430e0200">[email&#160;protected]</a>
+</code></pre>
+<h4 class="code-line" data-line-start=115 data-line-end=116 ><a id="spn_odpov_115"></a>Úspěšná odpověď</h4>
+<pre><code class="has-line-data" data-line-start="117" data-line-end="130" class="language-json">{
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"success"</span></span>,
+    "<span class="hljs-attribute">data</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">2</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Test Admin 1"</span></span>,
+        "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="116574626570757c787f20517469707c617d743f727e7c">[email&#160;protected]</a>"</span></span>,
+        "<span class="hljs-attribute">role</span>": <span class="hljs-value"><span class="hljs-string">"admin"</span></span>,
+        "<span class="hljs-attribute">created_at</span>": <span class="hljs-value"><span class="hljs-string">"2025-02-23 19:10:31"</span></span>,
+        "<span class="hljs-attribute">updated_at</span>": <span class="hljs-value"><span class="hljs-literal">null</span></span>,
+        "<span class="hljs-attribute">deleted_at</span>": <span class="hljs-value"><span class="hljs-literal">null</span>
+    </span>}
+</span>}
+</code></pre>
+<hr>
+<h3 class="code-line" data-line-start=132 data-line-end=133 ><a id="Vpis_uivatel_132"></a>Výpis uživatelů</h3>
+<p class="has-line-data" data-line-start="133" data-line-end="134">Získání seznamu uživatelů s možností filtrování.</p>
+<ul>
+<li class="has-line-data" data-line-start="135" data-line-end="136"><strong>URL:</strong> <code>/api/users/list</code></li>
+<li class="has-line-data" data-line-start="136" data-line-end="137"><strong>Metoda:</strong> <code>GET</code></li>
+<li class="has-line-data" data-line-start="137" data-line-end="138"><strong>Požadovaná role</strong> <code>user</code></li>
+</ul>
+<h4 class="code-line" data-line-start=138 data-line-end=139 ><a id="Voliteln_parametry_138"></a>Volitelné parametry</h4>
+<table class="table table-striped table-bordered">
+<thead>
+<tr>
+<th>Parametr</th>
+<th>Povolené hodnoty</th>
+<th>Defaultní hodnota v případě neuvedení</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>role</code></td>
+<td><code>user</code>, <code>admin</code></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_after</code></td>
+<td>datum v ISO formátu (e.g., <code>2022-01-01</code>)</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created_before</code></td>
+<td>datum v ISO formátu (e.g., <code>2022-01-01</code>)</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>include_deleted</code></td>
+<td><code>true</code>, <code>false</code></td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>only_deleted</code></td>
+<td><code>true</code>, <code>false</code></td>
+<td><code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h4 class="code-line" data-line-start=147 data-line-end=148 ><a id="Pklad_147"></a>Příklad</h4>
+<pre><code class="has-line-data" data-line-start="149" data-line-end="151">GET /api/users/list?role=admin&amp;include_deleted=true
+</code></pre>
+<h4 class="code-line" data-line-start=152 data-line-end=153 ><a id="spn_odpov_152"></a>Úspěšná odpověď</h4>
+<pre><code class="has-line-data" data-line-start="154" data-line-end="180" class="language-json">{
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"success"</span></span>,
+    "<span class="hljs-attribute">data</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">users</span>": <span class="hljs-value">[
+            {
+                "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">2</span></span>,
+                "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Test Admin 1"</span></span>,
+                "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="98ecfdebecf9fcf5f1f6a9d8fde0f9f5e8f4fdb6fbf7f5">[email&#160;protected]</a>"</span></span>,
+                "<span class="hljs-attribute">role</span>": <span class="hljs-value"><span class="hljs-string">"admin"</span></span>,
+                "<span class="hljs-attribute">created_at</span>": <span class="hljs-value"><span class="hljs-string">"2025-02-23 19:10:31"</span></span>,
+                "<span class="hljs-attribute">updated_at</span>": <span class="hljs-value"><span class="hljs-literal">null</span></span>,
+                "<span class="hljs-attribute">deleted_at</span>": <span class="hljs-value"><span class="hljs-literal">null</span>
+            </span>},
+            {
+                "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">3</span></span>,
+                "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Test Admin 2"</span></span>,
+                "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a9ddccdaddc8cdc4c0c79be9ccd1c8c4d9c5cc87cac6c4">[email&#160;protected]</a>"</span></span>,
+                "<span class="hljs-attribute">role</span>": <span class="hljs-value"><span class="hljs-string">"admin"</span></span>,
+                "<span class="hljs-attribute">created_at</span>": <span class="hljs-value"><span class="hljs-string">"2025-02-24 11:39:23"</span></span>,
+                "<span class="hljs-attribute">updated_at</span>": <span class="hljs-value"><span class="hljs-string">"2025-02-24 15:12:39"</span></span>,
+                "<span class="hljs-attribute">deleted_at</span>": <span class="hljs-value"><span class="hljs-string">"2025-02-24 15:12:39"</span>
+            </span>}
+        ]
+    </span>}
+</span>}
+</code></pre>
+<hr>
+<h3 class="code-line" data-line-start=183 data-line-end=184 ><a id="Vytvoen_novho_uivatele_183"></a>Vytvoření nového uživatele</h3>
+<ul>
+<li class="has-line-data" data-line-start="185" data-line-end="186"><strong>URL:</strong> <code>/api/users</code></li>
+<li class="has-line-data" data-line-start="186" data-line-end="187"><strong>Metoda:</strong> <code>POST</code></li>
+<li class="has-line-data" data-line-start="187" data-line-end="189"><strong>Požadovaná role</strong> <code>admin</code></li>
+</ul>
+<h4 class="code-line" data-line-start=189 data-line-end=190 ><a id="Tlo_poadavku_189"></a>Tělo požadavku</h4>
+<p class="has-line-data" data-line-start="190" data-line-end="191">Tělo požadavku musí obsahovat všechny následující klíče a hodnoty. Povolené role jsou <code>user</code>a <code>admin</code>.</p>
+<pre><code class="has-line-data" data-line-start="192" data-line-end="199" class="language-json">{
+"<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Test Admin 5"</span></span>,
+"<span class="hljs-attribute">email</span>":<span class="hljs-value"><span class="hljs-string">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8df9e8fef9ece9e0e4e3b8cde8f5ece0fde1e8a3eee2e0">[email&#160;protected]</a>"</span></span>,
+"<span class="hljs-attribute">password</span>":<span class="hljs-value"><span class="hljs-string">"testAdmin5*"</span></span>,
+"<span class="hljs-attribute">role</span>": <span class="hljs-value"><span class="hljs-string">"admin"</span>
+</span>}
+</code></pre>
+<h4 class="code-line" data-line-start=200 data-line-end=201 ><a id="spn_odpov_200"></a>Úspěšná odpověď</h4>
+<pre><code class="has-line-data" data-line-start="202" data-line-end="218" class="language-json">{
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"success"</span></span>,
+    "<span class="hljs-attribute">data</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"User created"</span></span>,
+        "<span class="hljs-attribute">user</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">10</span></span>,
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Test Admin 5"</span></span>,
+            "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="215544525540454c484f14614459404c514d440f424e4c">[email&#160;protected]</a>"</span></span>,
+            "<span class="hljs-attribute">role</span>": <span class="hljs-value"><span class="hljs-string">"admin"</span></span>,
+            "<span class="hljs-attribute">created_at</span>": <span class="hljs-value"><span class="hljs-string">"2025-02-24 16:47:22"</span></span>,
+            "<span class="hljs-attribute">updated_at</span>": <span class="hljs-value"><span class="hljs-literal">null</span></span>,
+            "<span class="hljs-attribute">deleted_at</span>": <span class="hljs-value"><span class="hljs-literal">null</span>
+        </span>}
+    </span>}
+</span>}
+</code></pre>
+<hr>
+<h3 class="code-line" data-line-start=221 data-line-end=222 ><a id="Aktualizace_daj_uivatele_221"></a>Aktualizace údajů uživatele</h3>
+<ul>
+<li class="has-line-data" data-line-start="224" data-line-end="225"><strong>URL:</strong> <code>/api/users/{id}</code></li>
+<li class="has-line-data" data-line-start="225" data-line-end="226"><strong>Metoda:</strong> <code>PUT</code></li>
+<li class="has-line-data" data-line-start="226" data-line-end="228"><strong>Požadovaná role</strong> <code>admin</code></li>
+</ul>
+<h4 class="code-line" data-line-start=228 data-line-end=229 ><a id="Tlo_poadavku_228"></a>Tělo požadavku</h4>
+<p class="has-line-data" data-line-start="229" data-line-end="230">Tělo požadavku musí obsahovat alespoň jeden z následujících párů klíč-hodnota.  Povolené role jsou <code>user</code>a <code>admin</code>.</p>
+<pre><code class="has-line-data" data-line-start="231" data-line-end="238" class="language-json">{
+"<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"New name"</span></span>,
+"<span class="hljs-attribute">email</span>":<span class="hljs-value"><span class="hljs-string">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ddb3b8aab8b0bcb4b19db8a5bcb0adb1b8f3beb2b0">[email&#160;protected]</a>"</span></span>,
+"<span class="hljs-attribute">password</span>":<span class="hljs-value"><span class="hljs-string">"newpassword"</span></span>,
+"<span class="hljs-attribute">role</span>": <span class="hljs-value"><span class="hljs-string">"user"</span>
+</span>}
+</code></pre>
+<h4 class="code-line" data-line-start=239 data-line-end=240 ><a id="spn_odpov_239"></a>Úspěšná odpověď</h4>
+<pre><code class="has-line-data" data-line-start="241" data-line-end="257" class="language-json">{
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"success"</span></span>,
+    "<span class="hljs-attribute">data</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"User with ID 2 updated"</span></span>,
+        "<span class="hljs-attribute">user</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">2</span></span>,
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"New name"</span></span>,
+            "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e8868d9f8d85898184a88d90898598848dc68b8785">[email&#160;protected]</a>"</span></span>,
+            "<span class="hljs-attribute">role</span>": <span class="hljs-value"><span class="hljs-string">"admin"</span></span>,
+            "<span class="hljs-attribute">created_at</span>": <span class="hljs-value"><span class="hljs-string">"2025-02-23 19:10:31"</span></span>,
+            "<span class="hljs-attribute">updated_at</span>": <span class="hljs-value"><span class="hljs-string">"2025-02-24 16:52:28"</span></span>,
+            "<span class="hljs-attribute">deleted_at</span>": <span class="hljs-value"><span class="hljs-literal">null</span>
+        </span>}
+    </span>}
+</span>}
+</code></pre>
+<hr>
+<h3 class="code-line" data-line-start=260 data-line-end=261 ><a id="Smazn_uivatele_260"></a>Smazání uživatele</h3>
+<ul>
+<li class="has-line-data" data-line-start="262" data-line-end="263"><strong>URL:</strong> <code>/api/users/{id}</code></li>
+<li class="has-line-data" data-line-start="263" data-line-end="264"><strong>Metoda:</strong> <code>DELETE</code></li>
+<li class="has-line-data" data-line-start="264" data-line-end="266"><strong>Požadovaná role</strong> <code>admin</code></li>
+</ul>
+<h4 class="code-line" data-line-start=266 data-line-end=267 ><a id="Pklad_266"></a>Příklad</h4>
+<pre><code class="has-line-data" data-line-start="268" data-line-end="270">DELETE /api/users/3?hard_delete=true
+</code></pre>
+<h4 class="code-line" data-line-start=271 data-line-end=272 ><a id="Voliteln_parametry_271"></a>Volitelné parametry</h4>
+<table class="table table-striped table-bordered">
+<thead>
+<tr>
+<th>Parametr</th>
+<th>Povolené hodnoty</th>
+<th>Defaultní hodnota v případě neuvedení</th>
+<th>Popis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hard_delete</code></td>
+<td><code>true</code>, <code>false</code></td>
+<td><code>false</code></td>
+<td>V případě nastavení na <code>true</code> dojde k trvalému odstranění záznamu z databáze, nikoliv jen k označení uživatele jako smazaného.</td>
+</tr>
+</tbody>
+</table>
+<h4 class="code-line" data-line-start=278 data-line-end=279 ><a id="spn_odpov_278"></a>Úspěšná odpověď</h4>
+<pre><code class="has-line-data" data-line-start="280" data-line-end="287" class="language-json">{
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"success"</span></span>,
+    "<span class="hljs-attribute">data</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"User deleted"</span>
+    </span>}
+</span>}
+</code></pre>
+<hr>
+<h3 class="code-line" data-line-start=290 data-line-end=291 ><a id="Vpis_zznam_operac_290"></a>Výpis záznamů operací</h3>
+<ul>
+<li class="has-line-data" data-line-start="292" data-line-end="293"><strong>URL:</strong> <code>/api/audit</code></li>
+<li class="has-line-data" data-line-start="293" data-line-end="294"><strong>Metoda:</strong> <code>GET</code></li>
+<li class="has-line-data" data-line-start="294" data-line-end="296"><strong>Požadovaná role</strong> <code>admin</code></li>
+</ul>
+<h4 class="code-line" data-line-start=296 data-line-end=297 ><a id="Voliteln_parametry_296"></a>Volitelné parametry</h4>
+<table class="table table-striped table-bordered">
+<thead>
+<tr>
+<th>Parametr</th>
+<th>Povolené hodnoty</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>action</code></td>
+<td><code>create</code>, <code>update</code>, <code>hard_delete</code>, <code>soft_delete</code></td>
+</tr>
+<tr>
+<td><code>performed_by_id</code></td>
+<td>id uživatele, který operaci provedl</td>
+</tr>
+<tr>
+<td><code>target_user_id</code></td>
+<td>id uživatele, kterého se operace týkala</td>
+</tr>
+<tr>
+<td><code>created_after</code></td>
+<td>datum v ISO formátu (e.g., <code>2022-01-01</code>)</td>
+</tr>
+<tr>
+<td><code>created_before</code></td>
+<td>datum v ISO formátu (e.g., <code>2022-01-01</code>)</td>
+</tr>
+</tbody>
+</table>
+<h4 class="code-line" data-line-start=306 data-line-end=307 ><a id="Pklad_poadavku_306"></a>Příklad požadavku</h4>
+<pre><code class="has-line-data" data-line-start="308" data-line-end="310">GET /api/audit?action=update&amp;created_after=2024-01-01
+</code></pre>
+<h4 class="code-line" data-line-start=311 data-line-end=312 ><a id="spn_odpov_311"></a>Úspěšná odpověď</h4>
+<pre><code class="has-line-data" data-line-start="313" data-line-end="333" class="language-json">{
+    "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"success"</span></span>,
+    "<span class="hljs-attribute">data</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">logs</span>": <span class="hljs-value">[
+            {
+                "<span class="hljs-attribute">action</span>": <span class="hljs-value"><span class="hljs-string">"update"</span></span>,
+                "<span class="hljs-attribute">performed_by_id</span>": <span class="hljs-value"><span class="hljs-number">2</span></span>,
+                "<span class="hljs-attribute">target_user_id</span>": <span class="hljs-value"><span class="hljs-number">7</span></span>,
+                "<span class="hljs-attribute">changed_data</span>": <span class="hljs-value">{
+                    "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+                        "<span class="hljs-attribute">new</span>": <span class="hljs-value"><span class="hljs-string">"Test Admin 4 Update"</span></span>,
+                        "<span class="hljs-attribute">old</span>": <span class="hljs-value"><span class="hljs-string">"Test Admin 4"</span>
+                    </span>}
+                </span>}</span>,
+                "<span class="hljs-attribute">log_created_at</span>": <span class="hljs-value"><span class="hljs-string">"2025-02-24 12:41:41"</span>
+            </span>}
+        ]
+    </span>}
+</span>}
+</code></pre>
+<hr>
+<h2 class="code-line" data-line-start=336 data-line-end=337 ><a id="Chybov_odpovdi_336"></a>Chybové odpovědi</h2>
+<p class="has-line-data" data-line-start="338" data-line-end="339">V JSON odpovědi naleznete chybový kód i detailní popis chyby.</p>
+<table class="table table-striped table-bordered">
+<thead>
+<tr>
+<th><strong>HTTP Code</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>400</td>
+<td>Bad Request</td>
+</tr>
+<tr>
+<td>401</td>
+<td>Unauthorized</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Forbidden</td>
+</tr>
+<tr>
+<td>404</td>
+<td>Not Found</td>
+</tr>
+<tr>
+<td>409</td>
+<td>Conflict</td>
+</tr>
+<tr>
+<td>500</td>
+<td>Internal Server Error</td>
+</tr>
+</tbody>
+</table>
+<h4 class="code-line" data-line-start=349 data-line-end=350 ><a id="Pklady_chybovch_hlek_349"></a>Příklady chybových hlášek</h4>
+<h3 class="code-line" data-line-start=352 data-line-end=353 ><a id="Invalid_JSON_Format_352"></a>Invalid JSON Format</h3>
+<pre><code class="has-line-data" data-line-start="354" data-line-end="358" class="language-json">{
+  "<span class="hljs-attribute">error</span>": <span class="hljs-value"><span class="hljs-string">"Invalid JSON format. Please provide JSON object."</span>
+</span>}
+</code></pre>
+<h4 class="code-line" data-line-start=360 data-line-end=361 ><a id="Invalid_Email_Format_360"></a>Invalid Email Format</h4>
+<pre><code class="has-line-data" data-line-start="362" data-line-end="366" class="language-json">{
+  "<span class="hljs-attribute">error</span>": <span class="hljs-value"><span class="hljs-string">"Invalid e-mail format"</span>
+</span>}
+</code></pre>
+<h4 class="code-line" data-line-start=367 data-line-end=368 ><a id="Exclusive_parameters_367"></a>Exclusive parameters</h4>
+<pre><code class="has-line-data" data-line-start="369" data-line-end="373" class="language-json">{
+  "<span class="hljs-attribute">error</span>": <span class="hljs-value"><span class="hljs-string">"Specify either id or email, not both."</span>
+</span>}
+</code></pre>
+<h4 class="code-line" data-line-start=374 data-line-end=375 ><a id="Missing_Required_Fields_374"></a>Missing Required Fields</h4>
+<pre><code class="has-line-data" data-line-start="376" data-line-end="380" class="language-json">{
+  "<span class="hljs-attribute">error</span>": <span class="hljs-value"><span class="hljs-string">"The following fields are mandatory: name, email, password, role"</span>
+</span>}
+</code></pre>
+<h4 class="code-line" data-line-start=380 data-line-end=381 ><a id="Invalid_Values_380"></a>Invalid Values</h4>
+<pre><code class="has-line-data" data-line-start="382" data-line-end="386" class="language-json">{
+  "<span class="hljs-attribute">error</span>": <span class="hljs-value"><span class="hljs-string">"Invalid role 'example_role'. Allowed roles are: admin, user, guest"</span>
+</span>}
+</code></pre>
+<h4 class="code-line" data-line-start=386 data-line-end=387 ><a id="Invalid_Fields_386"></a>Invalid Fields</h4>
+<pre><code class="has-line-data" data-line-start="388" data-line-end="396" class="language-json">{
+  "<span class="hljs-attribute">error</span>": <span class="hljs-value"><span class="hljs-string">"Invalid fields provided for update."</span></span>,
+  "<span class="hljs-attribute">details</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">invalid_fields</span>": <span class="hljs-value">[<span class="hljs-string">"unknown_field"</span>]</span>,
+    "<span class="hljs-attribute">allowed_fields</span>": <span class="hljs-value">[<span class="hljs-string">"name"</span>, <span class="hljs-string">"email"</span>, <span class="hljs-string">"password"</span>, <span class="hljs-string">"role"</span>]
+  </span>}
+</span>}
+</code></pre>
+<h3 class="code-line" data-line-start=397 data-line-end=398 ><a id="Invalid_Date_Range_397"></a>Invalid Date Range</h3>
+<pre><code class="has-line-data" data-line-start="399" data-line-end="403" class="language-json">{
+  "<span class="hljs-attribute">error</span>": <span class="hljs-value"><span class="hljs-string">"created_after cannot be later than created_before."</span>
+</span>}
+</code></pre>
+<h3 class="code-line" data-line-start=403 data-line-end=404 ><a id="Database_data_errors_403"></a>Database data errors</h3>
+<pre><code class="has-line-data" data-line-start="405" data-line-end="409" class="language-json">{
+  "<span class="hljs-attribute">error</span>": <span class="hljs-value"><span class="hljs-string">"User is already soft-deleted."</span>
+</span>}
+</code></pre>
+<pre><code class="has-line-data" data-line-start="411" data-line-end="415" class="language-json">{
+  "<span class="hljs-attribute">error</span>": <span class="hljs-value"><span class="hljs-string">"User not found."</span>
+</span>}
+</code></pre>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body></html>
