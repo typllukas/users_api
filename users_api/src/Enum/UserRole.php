@@ -9,6 +9,6 @@ enum UserRole: string
 
     public function toSymfonyRole(): string
     {
-        return 'ROLE_' . $this->value;
+        return 'ROLE_' . strtoupper($this->value);
     }
 }

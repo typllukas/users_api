@@ -19,7 +19,8 @@ class UserValidator extends Validator
     {
         $data = $this->validateJsonObject($jsonContent);
 
-        $this->checkMandatoryFields($data,
+        $this->checkMandatoryFields(
+            $data,
             ['email', 'password']
         );
         $this->validateEmail($data['email']);
@@ -49,6 +50,11 @@ class UserValidator extends Validator
 
     public function validateListParams(Request $request): array
     {
+
+        $allowedParams = ['role', 'created_after', 'created_before', 'include_deleted', 'only_deleted'];
+
+        $this->checkUnallowedParams($request->query->all(), $allowedParams);
+
         $role = $request->query->get('role');
         $createdAfter = $request->query->get('created_after');
         $createdBefore = $request->query->get('created_before');
@@ -102,14 +108,12 @@ class UserValidator extends Validator
                 continue;
             }
 
-            match ($field) {
+            $validUpdates[$field] = match ($field) {
                 'name'     => $this->validateString($field, $value),
                 'email'    => $this->validateEmail($value),
                 'password' => $this->validatePassword($value),
                 'role'     => $this->validateRole($value)
             };
-
-            $validUpdates[$field] = $value;
         }
 
         if (!empty($invalidFields)) {
@@ -144,5 +148,4 @@ class UserValidator extends Validator
             throw new ValidationException("Invalid role '{$role}'. Allowed roles are: " . implode(', ', $allowedRoles));
         }
     }
-
 }

@@ -37,7 +37,7 @@ class Validator
     /**
      * Validates a string with optional max length.
      */
-    public function validateString(string $fieldName, $value, int $maxLength = 100): void
+    public function validateString(string $fieldName, $value, int $maxLength = 100): string
     {
         $violations = $this->validator->validate($value, [
             new Assert\NotBlank(),
@@ -46,12 +46,14 @@ class Validator
         ]);
 
         $this->handleViolations($violations, $fieldName);
+
+        return $value;
     }
 
     /**
      * Validates an email address format.
      */
-    public function validateEmail(string $email): void
+    public function validateEmail(string $email): string
     {
         $violations = $this->validator->validate($email, [
             new Assert\NotBlank(),
@@ -59,6 +61,8 @@ class Validator
         ]);
 
         $this->handleViolations($violations, 'email');
+
+        return $email;
     }
 
     /**
@@ -90,15 +94,14 @@ class Validator
     {
         $dateTime = \DateTime::createFromFormat($format, $date);
         $errors = \DateTime::getLastErrors();
-
-        if (!$dateTime || $errors['warning_count'] > 0 || $errors['error_count'] > 0) {
+        if ($dateTime === false || $errors['warning_count'] > 0 || $errors['error_count'] > 0) {
             throw new ValidationException("Invalid date format.", [
                 $fieldName => "Use format {$format}."
             ]);
         }
-
         return $dateTime;
     }
+
 
     /**
      * Validates password strength.
@@ -119,6 +122,25 @@ class Validator
         ]);
 
         $this->handleViolations($violations, 'password');
+    }
+
+    /**
+     * Check for unsupported query parameters
+     */
+    /**
+     * Check for unsupported query parameters
+     */
+    public function checkUnallowedParams(array $params, array $allowedParams): void
+    {
+        // Find unsupported parameters
+        $unsupportedParams = array_diff_key($params, array_flip($allowedParams));
+
+        if (count($unsupportedParams) > 0) {
+            throw new ValidationException(
+                'Unsupported parameters identified: ' . implode(', ', array_keys($unsupportedParams)) .
+                    '. Supported parameters are: ' . implode(',', $allowedParams)
+            );
+        }
     }
 
 
