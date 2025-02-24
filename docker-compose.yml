@@ -1,4 +1,4 @@
-version: '3.8'
+# version: '3.8'
 
 services:
   app:
@@ -16,6 +16,8 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    networks:
+      - users_api_network
 
   db:
     image: mysql:8.0
@@ -38,6 +40,12 @@ services:
       - .env
     volumes:
       - db_data:/var/lib/mysql # To save db data locally
+    networks:
+      - users_api_network
+
+networks:
+  users_api_network:
+    driver: bridge
 
 volumes:
   db_data: 
