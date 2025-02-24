@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\User;
+use Symfony\Component\Security\Core\User\UserInterface;
 use App\Exception\NotFoundException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -20,19 +21,19 @@ class UserService
     ------------------------ */
 
     /* Get User object or formatted response */
-    public function showUser(array $params, bool $formatted = true): User|array
+    public function showUser(array $params): User|array
     {
         $repo = $this->em->getRepository(User::class);
 
-        $user = $params['id']
-            ? $repo->find($params['id'])
-            : $repo->findOneBy(['email' => $params['email']]);
-
-        if (!$user) {
+        if (isset($params['id'])) {
+            $user = $repo->find($params['id']);
+        } elseif (isset($params['email'])) {
+            $user = $repo->findOneBy(['email' => $params['email']]);
+        } else {
             throw new NotFoundException('User not found.');
         }
 
-        return $formatted ? $this->formatUser($user) : $user;
+        return $this->formatUser($user);
     }
 
     /* List users with optional filters */
@@ -47,12 +48,12 @@ class UserService
         }
 
         if ($filters['createdAfter']) {
-            $qb->andWhere('u.createdAt >= :after')
+            $qb->andWhere('u.createdAt > :after')
                 ->setParameter('after', $filters['createdAfter']);
         }
 
         if ($filters['createdBefore']) {
-            $qb->andWhere('u.createdAt <= :before')
+            $qb->andWhere('u.createdAt < :before')
                 ->setParameter('before', $filters['createdBefore']);
         }
 
@@ -66,7 +67,7 @@ class UserService
         return array_map(fn($user) => $this->formatUser($user), $qb->getQuery()->getResult());
     }
 
-    public function createUser(array $data, ?User $performedBy): User
+    public function createUser(array $data, ?User $performedBy): array
     {
         $user = new User();
 
@@ -89,11 +90,10 @@ class UserService
             'role' => $data['role']
         ]);
 
-        return $user;
+        return $this->formatUser($user);
     }
 
-
-    public function updateUser(array $updates, int $id, User $performedBy): User
+    public function updateUser(array $updates, int $id, User $performedBy): array
     {
         $user = $this->em->getRepository(User::class)->find($id)
             ?? throw new NotFoundException("User not found.");
@@ -107,7 +107,6 @@ class UserService
                 'name'     => $user->setName($value),
                 'email'    => $user->setEmail($value),
                 'role'     => $user->setRole($value),
-                default    => null
             };
         }
 
@@ -116,7 +115,7 @@ class UserService
         // Log changes
         $this->auditService->log('update', $performedBy, $user->getId(), $oldData, $updates);
 
-        return $user;
+        return $this->formatUser($user);
     }
 
 
@@ -142,7 +141,7 @@ class UserService
         $this->em->flush();
 
         // Log
-        $this->auditService->log($action, $performedBy, $user->getId(), $oldData, null);
+        $this->auditService->log($action, $performedBy, $id, $oldData, null);
     }
 
     /* ------------------------
@@ -150,7 +149,7 @@ class UserService
     ------------------------ */
 
     /** Format user object to array */
-    public function formatUser(User $user): array
+    public function formatUser(User|UserInterface $user): array
     {
         return [
             'id'         => $user->getId(),
