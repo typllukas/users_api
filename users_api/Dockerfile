@@ -9,11 +9,14 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     mariadb-client \
     curl \
+    jq \
+    libsodium-dev \ 
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_mysql gd \
+    && docker-php-ext-install pdo pdo_mysql gd sodium \ 
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && curl -sS https://get.symfony.com/cli/installer | bash \
     && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
+# sodium needed for lexik auth bundle
 
 # Set working directory
 WORKDIR /var/www/html/users_api
@@ -29,5 +32,6 @@ RUN chown -R www-data:www-data /var/www/html/users_api/var /var/www/html/users_a
 
 EXPOSE 8000
 
-# Start Symfony server
-CMD ["symfony", "server:start", "--no-tls", "--port=8000", "--allow-http"]
+# Use PHP built-in server for local testing
+CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+
