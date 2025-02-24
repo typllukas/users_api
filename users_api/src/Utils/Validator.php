@@ -51,16 +51,26 @@ class Validator
     }
 
     /**
+     * Validates if a string can be converted to an integer.
+     */
+    public function validateStringToInteger(string $fieldName, string $value): int
+    {
+        if (!is_numeric($value) || intval($value) != $value) {
+            throw new ValidationException("The field '{$fieldName}' must be a valid integer.");
+        }
+
+        return (int) $value;
+    }
+
+    /**
      * Validates an email address format.
      */
     public function validateEmail(string $email): string
     {
-        $violations = $this->validator->validate($email, [
-            new Assert\NotBlank(),
-            new Assert\Email()
-        ]);
 
-        $this->handleViolations($violations, 'email');
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new ValidationException('Invalid e-mail format');
+        }
 
         return $email;
     }
@@ -94,11 +104,11 @@ class Validator
     {
         $dateTime = \DateTime::createFromFormat($format, $date);
         $errors = \DateTime::getLastErrors();
-        if ($dateTime === false || $errors['warning_count'] > 0 || $errors['error_count'] > 0) {
-            throw new ValidationException("Invalid date format.", [
-                $fieldName => "Use format {$format}."
-            ]);
+
+        if (!$dateTime || $errors) {
+            throw new ValidationException("Invalid date format.");
         }
+        
         return $dateTime;
     }
 
@@ -106,7 +116,7 @@ class Validator
     /**
      * Validates password strength.
      */
-    public function validatePassword(string $password): void
+    public function validatePassword(string $password): string
     {
         $violations = $this->validator->validate($password, [
             new Assert\NotBlank(['message' => 'Password cannot be blank.']),
@@ -122,6 +132,8 @@ class Validator
         ]);
 
         $this->handleViolations($violations, 'password');
+
+        return $password;
     }
 
     /**

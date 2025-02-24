@@ -68,9 +68,9 @@ class ExceptionListener
         ];
 
         // In dev mode, include full exception details
-        if ($this->appEnv === 'dev') {
+        /* if ($this->appEnv === 'dev') {
             $errorResponse = array_merge($errorResponse, $this->formatExceptionDetails($exception));
-        }
+        } */
 
         $response = new JsonResponse($errorResponse, 500);
         $event->setResponse($response);

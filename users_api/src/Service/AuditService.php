@@ -6,6 +6,7 @@ use App\Entity\AuditLog;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
+use App\Exception\ValidationException;
 
 class AuditService
 {
@@ -26,11 +27,6 @@ class AuditService
             $changedData = array_map(fn($value) => ['old' => null, 'new' => $value], $newData ?? []);
         } elseif ($action === 'delete') {
             $changedData = array_map(fn($value) => ['old' => $value, 'new' => null], $oldData ?? []);
-        }
-
-        // Fallback to User ID 1 if $performedBy is null
-        if ($performedBy === null) {
-            $performedBy = $this->em->getReference(User::class, 1); // Lazy-loaded reference
         }
 
         $log = (new AuditLog())
@@ -69,9 +65,9 @@ class AuditService
                 ->setParameter('action', $filters['action']);
         }
 
-        if (!empty($filters['performedBy'])) {
+        if (!empty($filters['performedById'])) {
             $qb->andWhere('a.performedBy = :performedBy')
-                ->setParameter('performedBy', $filters['performedBy']);
+                ->setParameter('performedBy', $filters['performedById']);
         }
 
         if (!empty($filters['targetUserId'])) {
@@ -97,12 +93,11 @@ class AuditService
     private function formatAuditLog(AuditLog $log): array
     {
         return [
-            'id' => $log->getId(),
             'action' => $log->getAction(),
-            'performed_by' => $log->getPerformedBy()->getEmail(),
+            'performed_by_id' => $log->getPerformedBy()->getId(),
             'target_user_id' => $log->getTargetUserId(),
             'changed_data' => $log->getChangedData(),
-            'created_at' => $log->getCreatedAt()->format('Y-m-d H:i:s'),
+            'log_created_at' => $log->getCreatedAt()->format('Y-m-d H:i:s'),
         ];
     }
 }

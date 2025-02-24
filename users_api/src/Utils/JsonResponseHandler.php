@@ -11,8 +11,16 @@ trait JsonResponseHandler
         return new JsonResponse(['status' => 'success', 'data' => $data], $statusCode);
     }
 
-    public function errorResponse(string $message, int $statusCode = 400): JsonResponse
+    // Error response including details 
+    public function errorResponse(string $message, int $statusCode = 400, array $details = []): JsonResponse
     {
-        return new JsonResponse(['status' => 'error', 'message' => $message], $statusCode);
+        $response = ['status' => 'error', 'message' => $message];
+
+        if (!empty($details)) {
+            $response['errors'] = $details;
+        }
+
+        return new JsonResponse($response, $statusCode);
     }
+
 }

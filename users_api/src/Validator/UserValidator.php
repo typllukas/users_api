@@ -38,7 +38,7 @@ class UserValidator extends Validator
         }
 
         if ($id) {
-            $this->validateString('id', $id);
+            $this->validateStringToInteger('id', $id);
             return ['id' => $id];
         } elseif ($email) {
             $this->validateEmail($email);
@@ -65,8 +65,16 @@ class UserValidator extends Validator
             $this->validateRole($role);
         }
 
-        $after = $createdAfter ? $this->validateDate('created_after', $createdAfter) : null;
-        $before = $createdBefore ? $this->validateDate('created_before', $createdBefore) : null;
+        // Append default times to 'created_after' and 'created_before' 
+        if ($createdAfter) {
+            $createdAfter .= ' 23:59:59';
+        }
+        if ($createdBefore) {
+            $createdBefore .= ' 00:00:00';
+        }
+
+        $after = $createdAfter ? $this->validateDate('created_after', $createdAfter, 'Y-m-d H:i:s') : null;
+        $before = $createdBefore ? $this->validateDate('created_before', $createdBefore, 'Y-m-d H:i:s') : null;
 
         if ($after && $before && $after > $before) {
             throw new ValidationException('created_after cannot be later than created_before.');
