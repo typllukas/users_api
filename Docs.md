@@ -381,7 +381,7 @@ V JSON odpovědi naleznete chybový kód i detailní popis chyby.
 #### Invalid Values
 ```json
 {
-  "error": "Invalid role 'example_role'. Allowed roles are: admin, user, guest"
+  "error": "Invalid role 'example_role'. Allowed roles are: admin, user"
 }
 ```
 #### Invalid Fields
