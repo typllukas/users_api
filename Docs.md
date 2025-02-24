@@ -347,10 +347,10 @@ V JSON odpovědi naleznete chybový kód i detailní popis chyby.
 | 409           | Conflict                             |
 | 500           | Internal Server Error                |
 
-#### Příklady chybových hlášek
+### Příklady chybových hlášek
 
 
-### Invalid JSON Format
+#### Invalid JSON Format
 ```json
 {
   "error": "Invalid JSON format. Please provide JSON object."
@@ -395,13 +395,13 @@ V JSON odpovědi naleznete chybový kód i detailní popis chyby.
 }
 ```
 
-### Invalid Date Range
+#### Invalid Date Range
 ```json
 {
   "error": "created_after cannot be later than created_before."
 }
 ```
-### Database data errors
+#### Database data-related errors
 ```json
 {
   "error": "User is already soft-deleted."
