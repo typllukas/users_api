@@ -3,10 +3,23 @@
 namespace App\Utils;
 
 use App\Exception\ValidationException;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 class Validator
 {
-    public static function validateJson(string $jsonContent): array
+    private ValidatorInterface $validator;
+
+    public function __construct(ValidatorInterface $validator)
+    {
+        $this->validator = $validator;
+    }
+
+    /**
+     * Validates JSON object
+     */
+    public function validateJsonObject(string $jsonContent): array
     {
         $data = json_decode($jsonContent, true);
 
@@ -21,44 +34,59 @@ class Validator
         return $data;
     }
 
-    public static function validateString(string $fieldName, $value, int $maxLength = 100): void
+    /**
+     * Validates a string with optional max length.
+     */
+    public function validateString(string $fieldName, $value, int $maxLength = 100): void
     {
-        $errors = [];
+        $violations = $this->validator->validate($value, [
+            new Assert\NotBlank(),
+            new Assert\Type('string'),
+            new Assert\Length(['max' => $maxLength])
+        ]);
 
-        if (!is_string($value)) {
-            $errors[$fieldName] = 'Must be a string.';
-        } elseif (strlen($value) > $maxLength) {
-            $errors[$fieldName] = "Must not exceed {$maxLength} characters.";
+        $this->handleViolations($violations, $fieldName);
+    }
+
+    /**
+     * Validates an email address format.
+     */
+    public function validateEmail(string $email): void
+    {
+        $violations = $this->validator->validate($email, [
+            new Assert\NotBlank(),
+            new Assert\Email()
+        ]);
+
+        $this->handleViolations($violations, 'email');
+    }
+
+    /**
+     * Ensures all mandatory fields are provided
+     */
+    public function checkMandatoryFields(array $data, string|array $fields): void
+    {
+        $missingFields = [];
+
+        foreach ((array) $fields as $field) {
+            if (!isset($data[$field]) || $data[$field] === '') {
+                $missingFields[] = $field;
+            }
         }
 
-        if (!empty($errors)) {
-            throw new ValidationException("Invalid input in {$fieldName}.", $errors);
+        if (!empty($missingFields)) {
+            $message = count($missingFields) > 1
+                ? 'The following fields are mandatory: ' . implode(', ', $missingFields)
+                : "{$missingFields[0]} is mandatory.";
+
+            throw new ValidationException($message, ['missing_fields' => $missingFields]);
         }
     }
 
-    public static function validateEmail(string $email): void
-    {
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new ValidationException('Invalid email format.', ['email' => 'Enter a valid email address.']);
-        }
-    }
-
-    public static function validateRole(string $role): void
-    {
-        $allowedRoles = ['user', 'admin'];
-        if (!in_array($role, $allowedRoles, true)) {
-            throw new ValidationException('Invalid role.', ['role' => 'Allowed values: user, admin.']);
-        }
-    }
-
-    public static function checkMandatoryFields(array $data, string $fieldName): void
-    {
-        if (!isset($data[$fieldName])) {
-            throw new ValidationException("{$fieldName} is required.", [$fieldName => 'This field cannot be empty.']);
-        }
-    }
-
-    public static function validateDate(string $fieldName, string $date, string $format = 'Y-m-d'): \DateTime
+    /**
+     * Validates date format and returns DateTime object.
+     */
+    public function validateDate(string $fieldName, string $date, string $format = 'Y-m-d'): \DateTime
     {
         $dateTime = \DateTime::createFromFormat($format, $date);
         $errors = \DateTime::getLastErrors();
@@ -70,5 +98,49 @@ class Validator
         }
 
         return $dateTime;
+    }
+
+    /**
+     * Validates password strength.
+     */
+    public function validatePassword(string $password): void
+    {
+        $violations = $this->validator->validate($password, [
+            new Assert\NotBlank(['message' => 'Password cannot be blank.']),
+            new Assert\Length([
+                'min' => 8,
+                'minMessage' => 'Password must be at least {{ limit }} characters long.',
+                'max' => 255
+            ]),
+            new Assert\Regex([
+                'pattern' => '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/',
+                'message' => 'Password must include uppercase, lowercase, number, and special character.'
+            ])
+        ]);
+
+        $this->handleViolations($violations, 'password');
+    }
+
+
+    /**
+     * Handles violations from Symfony Validator.
+     */
+    public function handleViolations(ConstraintViolationListInterface $violations, string $fieldName): void
+    {
+        if (count($violations) > 0) {
+            $errors = [];
+            foreach ($violations as $violation) {
+                $errors[$fieldName] = $violation->getMessage();
+            }
+            throw new ValidationException("Invalid input in {$fieldName}.", $errors);
+        }
+    }
+
+    /**
+     * Exposes Symfony Validator directly for custom validations.
+     */
+    public function validate($value, array $constraints): ConstraintViolationListInterface
+    {
+        return $this->validator->validate($value, $constraints);
     }
 }

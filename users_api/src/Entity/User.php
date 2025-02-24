@@ -4,15 +4,14 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use App\Enum\UserRole;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-// Remember to handle user re-creation, as email uniqueness applies also to soft-deleted records.
-#[Gedmo\SoftDeleteable(fieldName: 'deletedAt', timeAware: false, hardDelete: true)]
+#[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -23,11 +22,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 100)]
     private ?string $email = null;
 
-    /**
-     * @var list<string> The user roles
-     */
-    #[ORM\Column]
-    private array $roles = [];
+    #[ORM\Column(length: 100)]
+    private ?string $role = null;
 
     /**
      * @var string The hashed password
@@ -46,6 +42,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\PrePersist]
+    public function onPrePersist(): void
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
+
+    #[ORM\PreUpdate]
+    public function onPreUpdate(): void
+    {
+        $this->updatedAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
@@ -75,27 +83,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @see UserInterface
-     *
-     * @return list<string>
+     * Role getter for internal purposes (not for symfony)
      */
-    public function getRoles(): array
+    public function getRole(): ?UserRole
     {
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
+        return $this->role ? UserRole::from($this->role) : null;
     }
 
     /**
-     * @param list<string> $roles
+     * Role setter for internal purposes (not for symfony)
      */
-    public function setRoles(array $roles): static
+    public function setRole(UserRole $role): static
     {
-        $this->roles = $roles;
-
+        $this->role = $role->value; // save string value to DB
         return $this;
+    }
+
+    /**
+     * @see UserInterface
+     * Returns roles array as required by Symfony
+     */
+    public function getRoles(): array
+    {
+        return [$this->getRole()?->toSymfonyRole() ?? 'ROLE_USER'];
     }
 
     /**
