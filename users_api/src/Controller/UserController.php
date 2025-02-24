@@ -73,27 +73,4 @@ class UserController extends AbstractController
         $this->userService->deleteUser($id, $hardDelete, $user);
         return $this->successResponse(['status' => "User deleted"]);
     }
-
-    /* ------------------------
-    For testing only
-    ------------------------ */
-
-    /* Create test user without authentication */
-    #[Route('/test-create', name: 'test_create', methods: ['POST'])]
-    #[Route(
-        '/test-create',
-        name: 'test_create',
-        methods: ['POST']
-    )]
-    public function testCreate(Request $request): JsonResponse
-    {
-        try {
-            $data = $this->userValidator->validateCreateParams($request);
-            $newUser = $this->userService->createUser($data, null);
-
-            return $this->successResponse(['status' => 'Test user created', 'user' => $newUser], 201);
-        } catch (\Exception $e) {
-            return $this->errorResponse('Error: ' . $e->getMessage(), 500);
-        }
-    }
 }
