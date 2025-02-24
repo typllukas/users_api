@@ -135,7 +135,7 @@ Získání seznamu uživatelů s možností filtrování.
 
 - **URL:** `/api/users/list`  
 - **Metoda:** `GET`  
-- **Požadovaná role** `user` 
+- **Požadovaná role** `admin` 
 #### Volitelné parametry
 | Parametr          | Povolené hodnoty                             | Defaultní hodnota v případě neuvedení     |
 |-------------------|-----------------------------------------------|-------------------------------------------|
