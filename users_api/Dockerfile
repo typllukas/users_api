@@ -10,13 +10,17 @@ RUN apt-get update && apt-get install -y \
     mariadb-client \
     curl \
     jq \
-    libsodium-dev \ 
+    libsodium-dev \
+    librabbitmq-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_mysql gd sodium \ 
+    && docker-php-ext-install pdo pdo_mysql gd sodium \
+    && pecl install amqp \
+    && docker-php-ext-enable amqp \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && curl -sS https://get.symfony.com/cli/installer | bash \
     && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
-# sodium needed for lexik auth bundle
+    # sodium required for lexik auth bundle
+    # amqp and librabbitmq-dev required for rabbitMQ
 
 # Set working directory
 WORKDIR /var/www/html/users_api

@@ -11,8 +11,11 @@ services:
       - ./users_api:/var/www/html/users_api
     environment:
       DATABASE_URL: "mysql://${DB_USER}:${DB_PASSWORD}@db:3306/${DB}?serverVersion=8.0"
+      RABBITMQ_URL: "amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/"
     depends_on:
       db:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     env_file:
       - .env
@@ -40,6 +43,19 @@ services:
       - .env
     volumes:
       - db_data:/var/lib/mysql # To save db data locally
+    networks:
+      - users_api_network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: users_api_rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - '5672:5672'  # AMQP protocol port
+      - '15672:15672' # RabbitMQ Management UI
     networks:
       - users_api_network
 
