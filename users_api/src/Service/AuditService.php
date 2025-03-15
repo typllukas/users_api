@@ -6,12 +6,28 @@ use App\Entity\AuditLog;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
-use App\Exception\ValidationException;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class AuditService
 {
-    public function __construct(private EntityManagerInterface $em) {}
+    public function __construct(
+        private EntityManagerInterface $em,
+        private MessageBusInterface $messageBus
+    ) {}
 
+    /*Send audit log message to RabbitMQ*/
+    public function log(string $action, ?User $performedBy, int $targetUserId, ?array $oldData = null, ?array $newData = null): void
+    {
+        $this->messageBus->dispatch(new AuditLogMessage(
+            action: $action,
+            performedById: $performedBy?->getId(),
+            targetUserId: $targetUserId,
+            oldData: $oldData,
+            newData: $newData
+        ));
+    }
+
+    /* OLD function for direct logging
     public function log(string $action, ?User $performedBy, int $targetUserId, ?array $oldData = null, ?array $newData = null): void
     {
         $changedData = [];
@@ -50,9 +66,7 @@ class AuditService
 
             throw new \RuntimeException($detailedMessage, 0, $e);
         }
-    }
-
-
+    }*/
 
     /* List audit logs with optional filters */
     public function listAuditLogs(array $filters = []): array
