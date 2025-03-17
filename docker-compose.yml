@@ -59,6 +59,21 @@ services:
     networks:
       - users_api_network
 
+  worker:
+    build: users_api
+    container_name: users_api_worker
+    restart: always
+    command: [ "php", "bin/console", "messenger:consume", "async", "--memory-limit=256M", "--limit=100" ]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      RABBITMQ_URL: "amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/"
+    env_file:
+      - .env
+    networks:
+      - users_api_network
+
 networks:
   users_api_network:
     driver: bridge
