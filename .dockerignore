@@ -1,2 +1,19 @@
+# Ignore environment and sensitive files
 .env
+.env.local
+.env.*.local
+
+# Ignore version control files
 .git
+.gitignore
+
+# Ignore dependency directories (should be installed inside container)
+vendor/
+node_modules/
+
+# Ignore system and temporary files
+*.log
+var/
+var/cache/
+var/log/
+var/sessions/

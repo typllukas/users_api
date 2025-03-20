@@ -8,7 +8,16 @@ services:
     ports:
       - '8000:8000'
     volumes:
-      - ./users_api:/var/www/html/users_api
+      - ./users_api/bin:/var/www/html/users_api/bin
+      - ./users_api/config:/var/www/html/users_api/config
+      - ./users_api/migrations:/var/www/html/users_api/migrations
+      - ./users_api/public:/var/www/html/users_api/public
+      - ./users_api/src:/var/www/html/users_api/src
+      - ./users_api/tests:/var/www/html/users_api/tests
+      - ./users_api/var:/var/www/html/users_api/var
+      - ./users_api/composer.json:/var/www/html/users_api/composer.json
+      - ./users_api/composer.lock:/var/www/html/users_api/composer.lock
+      - ./users_api/symfony.lock:/var/www/html/users_api/symfony.lock
     environment:
       DATABASE_URL: "mysql://${DB_USER}:${DB_PASSWORD}@db:3306/${DB}?serverVersion=8.0"
       RABBITMQ_URL: "amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/"
