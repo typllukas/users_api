@@ -18,7 +18,8 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-enable amqp \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && curl -sS https://get.symfony.com/cli/installer | bash \
-    && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
+    && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony \
+    && rm -rf /var/lib/apt/lists/*  # Clean up package lists to reduce image size
     # sodium required for lexik auth bundle
     # amqp and librabbitmq-dev required for rabbitMQ
 
@@ -28,14 +29,7 @@ WORKDIR /var/www/html/users_api
 # Copy application files
 COPY . /var/www/html/users_api/
 
-# Install PHP dependencies using Composer (with optimization for production)
-RUN composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
-
-# Set permissions for Symfony
-RUN chown -R www-data:www-data /var/www/html/users_api/var /var/www/html/users_api/public
-
-EXPOSE 8000
-
-# Use PHP built-in server for local testing
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
-
+# Set entrypoint
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint
+RUN chmod +x /usr/local/bin/entrypoint
+ENTRYPOINT ["/usr/local/bin/entrypoint"]

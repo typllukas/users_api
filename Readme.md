@@ -5,19 +5,7 @@
 docker-compose up --build
 ```
 
-## Run migrations to create db tables
-
-```bash
-docker-compose exec app php bin/console doctrine:migrations:migrate
-```
-
-## Run fixtures to create testing users
-
-```bash
-docker-compose exec app php bin/console doctrine:fixtures:load
-```
-
-## Test via localhost
+## Test api via localhost base url
 
 ```http
 http://localhost:8000
