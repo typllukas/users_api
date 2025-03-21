@@ -8,7 +8,7 @@ echo "Setting correct permissions..."
 chown -R www-data:www-data var public vendor
 
 echo "Waiting for database to be ready..."
-until php bin/console doctrine:database:exists --quiet; do
+until mysqladmin ping -h db --silent; do
   sleep 2
 done
 echo "Database is ready!"
